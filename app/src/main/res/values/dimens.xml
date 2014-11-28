@@ -6,4 +6,5 @@
     <dimen name="inner_circle_radius">80dp</dimen>
     <dimen name="pause_icon_height">45dp</dimen>
     <dimen name="pause_icon_width">10dp</dimen>
+    <dimen name="pause_icon_gap">10dp</dimen>
 </resources>

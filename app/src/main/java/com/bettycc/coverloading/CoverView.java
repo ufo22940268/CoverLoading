@@ -3,17 +3,12 @@ package com.bettycc.coverloading;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Region;
-import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
@@ -36,6 +31,8 @@ public class CoverView extends ImageView {
     private ValueAnimator mRotateAnimator;
     private float mPauseIconHeight;
     private float mPauseIconWidth;
+    private float mPauseIconGap;
+    private boolean mPausing;
 
     public CoverView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -57,14 +54,22 @@ public class CoverView extends ImageView {
     private void init(Context context, AttributeSet attrs) {
         mOuterCircleRadius = getResources().getDimension(R.dimen.outer_circle_radius);
         mInnerCircleRadius = getResources().getDimension(R.dimen.inner_circle_radius);
-        mPauseCircleRadius = mInnerCircleRadius * 0.2f;
+        mPauseCircleRadius = mInnerCircleRadius * 0.7f;
         mPauseIconHeight = getResources().getDimension(R.dimen.pause_icon_height);
         mPauseIconWidth = getResources().getDimension(R.dimen.pause_icon_width);
+        mPauseIconGap = getResources().getDimension(R.dimen.pause_icon_gap);
 
         mRotateAnimator = ValueAnimator.ofInt(-90, 270);
         mRotateAnimator.setDuration(3000);
         mRotateAnimator.setInterpolator(new DecelerateInterpolator());
         mRotateAnimator.addUpdateListener(mRotateListener);
+
+        mRotateAnimator = ValueAnimator.ofInt(-90, 270);
+        mRotateAnimator.setDuration(3000);
+        mRotateAnimator.setInterpolator(new DecelerateInterpolator());
+        mRotateAnimator.addUpdateListener(mRotateListener);
+
+//        mPauseStartAnimator = ValueAnimator.ofFloat();
     }
 
     @Override
@@ -106,29 +111,49 @@ public class CoverView extends ImageView {
                 270 - mArcStart,
                 true,
                 shadowPaint);
-
-        //Draw pause icon.
-        tempCanvas.drawCircle(cx, cy, mPauseCircleRadius, transparentPaint);
-
-        Bitmap pauseBitmap = Bitmap.createBitmap((int) mPauseCircleRadius * 2, (int) mPauseCircleRadius * 2, Bitmap.Config.ARGB_8888);
-        Canvas pauseCanvas = new Canvas(pauseBitmap);
-
-        int pcx = (int) (mPauseCircleRadius);
-        int pcy = (int) (mPauseCircleRadius);
-
-        pauseCanvas.drawCircle(pcx, pcy, mPauseCircleRadius, shadowPaint);
-
-        //Draw pause1.
-        RectF pause1 = new RectF();
-        pause1.left = pcx - mPauseIconWidth / 2;
-        pause1.right = pcx + mPauseIconWidth / 2;
-        pause1.top = pcx - mPauseIconHeight / 2;
-        pause1.bottom = pcx + mPauseIconHeight / 2;
-        Paint gp1 = new Paint(greenPaint);
-        gp1.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        pauseCanvas.drawRect(pause1, gp1);
-
         canvas.drawBitmap(bitmap, 0, 0, null);
-        canvas.drawBitmap(pauseBitmap, cx - mPauseCircleRadius, cx - mPauseCircleRadius, null);
+
+        /**
+         * Draw pause icon.
+         */
+        if (mPausing) {
+            tempCanvas.drawCircle(cx, cy, mPauseCircleRadius, transparentPaint);
+
+            Bitmap pauseBitmap = Bitmap.createBitmap((int) mPauseCircleRadius * 2, (int) mPauseCircleRadius * 2, Bitmap.Config.ARGB_8888);
+            Canvas pauseCanvas = new Canvas(pauseBitmap);
+
+            pauseCanvas.drawCircle(mPauseCircleRadius, mPauseCircleRadius, mPauseCircleRadius, shadowPaint);
+
+            Paint gp1 = new Paint(greenPaint);
+            gp1.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+            //Draw pause1.
+            int pcx = (int) (mPauseCircleRadius - mPauseIconGap / 2 - mPauseIconWidth / 2);
+            int pcy = (int) (mPauseCircleRadius);
+
+            RectF pause1 = new RectF();
+            pause1.left = pcx - mPauseIconWidth / 2;
+            pause1.right = pcx + mPauseIconWidth / 2;
+            pause1.top = pcy - mPauseIconHeight / 2;
+            pause1.bottom = pcy + mPauseIconHeight / 2;
+            pauseCanvas.drawRect(pause1, gp1);
+
+            //Draw pause2.
+            int pcx2 = (int) (mPauseCircleRadius + mPauseIconGap / 2 + mPauseIconWidth / 2);
+            int pcy2 = (int) (mPauseCircleRadius);
+
+            RectF pause2 = new RectF();
+            pause2.left = pcx2 - mPauseIconWidth / 2;
+            pause2.right = pcx2 + mPauseIconWidth / 2;
+            pause2.top = pcy2 - mPauseIconHeight / 2;
+            pause2.bottom = pcy2 + mPauseIconHeight / 2;
+            pauseCanvas.drawRect(pause2, gp1);
+
+            canvas.drawBitmap(pauseBitmap, cx - mPauseCircleRadius, cx - mPauseCircleRadius, null);
+        }
+    }
+
+    public void pauseLoading() {
+        mPausing = true;
     }
 }

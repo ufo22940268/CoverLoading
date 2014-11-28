@@ -44,4 +44,8 @@ public class MainActivity extends Activity {
     public void startLoading(View view) {
         mCoverView.startLoading();
     }
+
+    public void pauseLoading(View view) {
+        mCoverView.pauseLoading();
+    }
 }

@@ -9,10 +9,18 @@
                 tools:context=".MainActivity">
 
     <com.bettycc.coverloading.CoverView
+        android:id="@+id/cover"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:src="@drawable/cover"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="start"
+        android:onClick="startLoading"
         />
 
 </RelativeLayout>

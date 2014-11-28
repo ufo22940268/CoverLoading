@@ -57,7 +57,7 @@ public class CoverView extends ImageView {
     private void init(Context context, AttributeSet attrs) {
         mOuterCircleRadius = getResources().getDimension(R.dimen.outer_circle_radius);
         mInnerCircleRadius = getResources().getDimension(R.dimen.inner_circle_radius);
-        mPauseCircleRadius = mInnerCircleRadius * 0.7f;
+        mPauseCircleRadius = mInnerCircleRadius * 0.2f;
         mPauseIconHeight = getResources().getDimension(R.dimen.pause_icon_height);
         mPauseIconWidth = getResources().getDimension(R.dimen.pause_icon_width);
 
@@ -116,9 +116,6 @@ public class CoverView extends ImageView {
         int pcx = (int) (mPauseCircleRadius);
         int pcy = (int) (mPauseCircleRadius);
 
-        Path path = new Path();
-        path.addCircle(pcx, pcy, mPauseCircleRadius, Path.Direction.CCW);
-//        pauseCanvas.clipPath(path, Region.Op.REPLACE);
         pauseCanvas.drawCircle(pcx, pcy, mPauseCircleRadius, shadowPaint);
 
         //Draw pause1.
@@ -127,25 +124,11 @@ public class CoverView extends ImageView {
         pause1.right = pcx + mPauseIconWidth / 2;
         pause1.top = pcx - mPauseIconHeight / 2;
         pause1.bottom = pcx + mPauseIconHeight / 2;
-        pauseCanvas.drawRect(pause1, greenPaint);
+        Paint gp1 = new Paint(greenPaint);
+        gp1.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        pauseCanvas.drawRect(pause1, gp1);
 
         canvas.drawBitmap(bitmap, 0, 0, null);
         canvas.drawBitmap(pauseBitmap, cx - mPauseCircleRadius, cx - mPauseCircleRadius, null);
     }
-
-
-//    @Override
-//    protected void onDraw(Canvas canvas) {
-//        super.onDraw(canvas);
-//        Paint redPaint = new Paint();
-//        redPaint.setColor(Color.RED);
-//
-//        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-//        Canvas c1 = new Canvas(bitmap);
-//        c1.drawRect(0, 0, 100, 100, redPaint);
-//        Path path = new Path();
-//        path.addCircle(50, 50, 30, Path.Direction.CCW);
-//        canvas.clipPath(path, Region.Op.REPLACE);
-//        canvas.drawBitmap(bitmap, 0, 0, null);
-//    }
 }

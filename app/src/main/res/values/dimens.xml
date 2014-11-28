@@ -4,6 +4,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="outer_circle_radius">90dp</dimen>
     <dimen name="inner_circle_radius">80dp</dimen>
-    <dimen name="pause_icon_height">50dp</dimen>
-    <dimen name="pause_icon_width">20dp</dimen>
+    <dimen name="pause_icon_height">45dp</dimen>
+    <dimen name="pause_icon_width">10dp</dimen>
 </resources>

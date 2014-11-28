@@ -1,5 +1,6 @@
 package com.bettycc.coverloading;
 
+import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -33,6 +34,8 @@ public class CoverView extends ImageView {
     private float mPauseIconWidth;
     private float mPauseIconGap;
     private boolean mPausing;
+    private ValueAnimator mPauseStartAnimator;
+    private float mPauseMaxCircleRadius;
 
     public CoverView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -47,6 +50,14 @@ public class CoverView extends ImageView {
         }
     };
 
+    private ValueAnimator.AnimatorUpdateListener mPauseStartUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            mPauseCircleRadius = mPauseMaxCircleRadius * ((Float) animation.getAnimatedValue()).floatValue();
+            invalidate();
+        }
+    };
+
     public void startLoading() {
         mRotateAnimator.start();
     }
@@ -54,7 +65,8 @@ public class CoverView extends ImageView {
     private void init(Context context, AttributeSet attrs) {
         mOuterCircleRadius = getResources().getDimension(R.dimen.outer_circle_radius);
         mInnerCircleRadius = getResources().getDimension(R.dimen.inner_circle_radius);
-        mPauseCircleRadius = mInnerCircleRadius * 0.7f;
+        mPauseMaxCircleRadius = mInnerCircleRadius * 0.7f;
+        mPauseCircleRadius = mPauseMaxCircleRadius;
         mPauseIconHeight = getResources().getDimension(R.dimen.pause_icon_height);
         mPauseIconWidth = getResources().getDimension(R.dimen.pause_icon_width);
         mPauseIconGap = getResources().getDimension(R.dimen.pause_icon_gap);
@@ -69,7 +81,30 @@ public class CoverView extends ImageView {
         mRotateAnimator.setInterpolator(new DecelerateInterpolator());
         mRotateAnimator.addUpdateListener(mRotateListener);
 
-//        mPauseStartAnimator = ValueAnimator.ofFloat();
+        mPauseStartAnimator = ValueAnimator.ofFloat(1, 0);
+        mPauseStartAnimator.setDuration(1000);
+        mPauseStartAnimator.addUpdateListener(mPauseStartUpdateListener);
+        mPauseStartAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mPausing = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
     }
 
     @Override
@@ -116,7 +151,7 @@ public class CoverView extends ImageView {
         /**
          * Draw pause icon.
          */
-        if (mPausing) {
+        if (mPausing && mPauseCircleRadius > 0) {
             tempCanvas.drawCircle(cx, cy, mPauseCircleRadius, transparentPaint);
 
             Bitmap pauseBitmap = Bitmap.createBitmap((int) mPauseCircleRadius * 2, (int) mPauseCircleRadius * 2, Bitmap.Config.ARGB_8888);
@@ -155,5 +190,6 @@ public class CoverView extends ImageView {
 
     public void pauseLoading() {
         mPausing = true;
+        mPauseStartAnimator.start();
     }
 }

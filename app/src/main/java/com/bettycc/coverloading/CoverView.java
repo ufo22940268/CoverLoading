@@ -10,7 +10,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
@@ -27,7 +26,7 @@ public class CoverView extends ImageView {
     private Paint transparentPaint;
     private float mOuterCircleRadius;
     private float mInnerCircleRadius;
-    private int mSweep;
+    private int mArcStart;
     private ValueAnimator mRotateAnimator;
 
     public CoverView(Context context, AttributeSet attrs) {
@@ -37,7 +36,7 @@ public class CoverView extends ImageView {
     private ValueAnimator.AnimatorUpdateListener mRotateListener = new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-            mSweep = ((Integer) animation.getAnimatedValue()).intValue();
+            mArcStart = ((Integer) animation.getAnimatedValue()).intValue();
             invalidate();
         }
     };
@@ -50,7 +49,7 @@ public class CoverView extends ImageView {
         mOuterCircleRadius = getResources().getDimension(R.dimen.outer_circle_radius);
         mInnerCircleRadius = getResources().getDimension(R.dimen.inner_circle_radius);
 
-        mRotateAnimator = ValueAnimator.ofInt(0, 360);
+        mRotateAnimator = ValueAnimator.ofInt(-90, 270);
         mRotateAnimator.setDuration(3000);
         mRotateAnimator.setInterpolator(new DecelerateInterpolator());
         mRotateAnimator.addUpdateListener(mRotateListener);
@@ -84,8 +83,8 @@ public class CoverView extends ImageView {
                 cx + mInnerCircleRadius,
                 cy + mInnerCircleRadius);
         tempCanvas.drawArc(rectF,
-                -90,
-                mSweep,
+                mArcStart,
+                270 - mArcStart,
                 true,
                 shadowPaint);
 

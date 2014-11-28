@@ -24,11 +24,12 @@
         android:onClick="startLoading"
         />
 
-    <Button
+    <Switch
+        android:id="@+id/switcher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="pause"
+        android:textOn="resume"
+        android:textOff="pause"
         android:layout_toRightOf="@id/start"
-        android:onClick="pauseLoading"
         />
 </RelativeLayout>

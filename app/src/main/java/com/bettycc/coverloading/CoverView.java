@@ -2,6 +2,7 @@ package com.bettycc.coverloading;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,7 +11,9 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
@@ -34,31 +37,19 @@ public class CoverView extends ImageView {
     private float mPauseIconWidth;
     private float mPauseIconGap;
     private boolean mPausing;
-    private ValueAnimator mPauseStartAnimator;
+    private ValueAnimator mPauseAnimator;
     private float mPauseMaxCircleRadius;
+    private ValueAnimator mResumeAnimator;
+    private boolean mStart;
 
     public CoverView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
-    private ValueAnimator.AnimatorUpdateListener mRotateListener = new ValueAnimator.AnimatorUpdateListener() {
-        @Override
-        public void onAnimationUpdate(ValueAnimator animation) {
-            mArcStart = ((Integer) animation.getAnimatedValue()).intValue();
-            invalidate();
-        }
-    };
-
-    private ValueAnimator.AnimatorUpdateListener mPauseStartUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
-        @Override
-        public void onAnimationUpdate(ValueAnimator animation) {
-            mPauseCircleRadius = mPauseMaxCircleRadius * ((Float) animation.getAnimatedValue()).floatValue();
-            invalidate();
-        }
-    };
 
     public void startLoading() {
+        mStart = true;
         mRotateAnimator.start();
     }
 
@@ -72,44 +63,28 @@ public class CoverView extends ImageView {
         mPauseIconGap = getResources().getDimension(R.dimen.pause_icon_gap);
 
         mRotateAnimator = ValueAnimator.ofInt(-90, 270);
-        mRotateAnimator.setDuration(3000);
-        mRotateAnimator.setInterpolator(new DecelerateInterpolator());
+        mRotateAnimator.setDuration(10000);
+        mRotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         mRotateAnimator.addUpdateListener(mRotateListener);
 
-        mRotateAnimator = ValueAnimator.ofInt(-90, 270);
-        mRotateAnimator.setDuration(3000);
-        mRotateAnimator.setInterpolator(new DecelerateInterpolator());
-        mRotateAnimator.addUpdateListener(mRotateListener);
+        mPauseAnimator = ValueAnimator.ofFloat(0.001f, 1);
+        mPauseAnimator.setDuration(1000);
+        mPauseAnimator.addUpdateListener(mPauseUpdateListener);
+        mPauseAnimator.addListener(mPauseListener);
 
-        mPauseStartAnimator = ValueAnimator.ofFloat(1, 0);
-        mPauseStartAnimator.setDuration(1000);
-        mPauseStartAnimator.addUpdateListener(mPauseStartUpdateListener);
-        mPauseStartAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                mPausing = true;
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
+        mResumeAnimator = ValueAnimator.ofFloat(1, 0.001f);
+        mResumeAnimator.setDuration(1000);
+        mResumeAnimator.addUpdateListener(mResumeUpdateListener);
+        mResumeAnimator.addListener(mResumeListener);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+        if (!mStart) {
+            return;
+        }
 
         Paint redPaint = new Paint();
         redPaint.setColor(Color.RED);
@@ -151,15 +126,16 @@ public class CoverView extends ImageView {
         /**
          * Draw pause icon.
          */
-        if (mPausing && mPauseCircleRadius > 0) {
+        if (mPausing && mPauseCircleRadius*2 > 1) {
             tempCanvas.drawCircle(cx, cy, mPauseCircleRadius, transparentPaint);
 
-            Bitmap pauseBitmap = Bitmap.createBitmap((int) mPauseCircleRadius * 2, (int) mPauseCircleRadius * 2, Bitmap.Config.ARGB_8888);
+            System.out.println("mPauseCircleRadius = " + mPauseCircleRadius);
+            Bitmap pauseBitmap = Bitmap.createBitmap((int) (mPauseCircleRadius * 2), (int) (mPauseCircleRadius * 2), Bitmap.Config.ARGB_8888);
             Canvas pauseCanvas = new Canvas(pauseBitmap);
 
             pauseCanvas.drawCircle(mPauseCircleRadius, mPauseCircleRadius, mPauseCircleRadius, shadowPaint);
 
-            Paint gp1 = new Paint(greenPaint);
+            Paint gp1 = new Paint(transparentPaint);
             gp1.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
             //Draw pause1.
@@ -188,8 +164,88 @@ public class CoverView extends ImageView {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public void pauseLoading() {
         mPausing = true;
-        mPauseStartAnimator.start();
+        mResumeAnimator.cancel();
+        mPauseAnimator.start();
+        mRotateAnimator.pause();
     }
+
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public void resumeLoading() {
+        mPausing = true;
+        mPauseAnimator.cancel();
+        mResumeAnimator.start();
+        mRotateAnimator.resume();
+    }
+
+    private ValueAnimator.AnimatorUpdateListener mResumeUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator valueAnimator) {
+            mPauseCircleRadius = mPauseMaxCircleRadius * ((Float) valueAnimator.getAnimatedValue()).floatValue();
+            invalidate();
+        }
+    };
+
+    private Animator.AnimatorListener mPauseListener = new Animator.AnimatorListener() {
+        @Override
+        public void onAnimationStart(Animator animation) {
+            mPausing = true;
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animation) {
+
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+
+        }
+    };
+
+    private ValueAnimator.AnimatorUpdateListener mRotateListener = new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            mArcStart = ((Integer) animation.getAnimatedValue()).intValue();
+            invalidate();
+        }
+    };
+
+    private ValueAnimator.AnimatorUpdateListener mPauseUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            mPauseCircleRadius = mPauseMaxCircleRadius * ((Float) animation.getAnimatedValue()).floatValue();
+            invalidate();
+        }
+    };
+
+    private Animator.AnimatorListener mResumeListener = new Animator.AnimatorListener() {
+        @Override
+        public void onAnimationStart(Animator animator) {
+
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animator) {
+            mPausing = false;
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animator) {
+
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animator) {
+
+        }
+    };
 }

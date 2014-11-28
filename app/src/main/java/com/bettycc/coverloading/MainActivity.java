@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 
 public class MainActivity extends Activity {
@@ -16,6 +18,18 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mCoverView = (CoverView) findViewById(R.id.cover);
+        ((Switch)findViewById(R.id.switcher)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    mCoverView.pauseLoading();
+                } else {
+                    mCoverView.resumeLoading();
+                }
+            }
+        });
+
+        mCoverView.startLoading();
     }
 
 
@@ -43,9 +57,5 @@ public class MainActivity extends Activity {
 
     public void startLoading(View view) {
         mCoverView.startLoading();
-    }
-
-    public void pauseLoading(View view) {
-        mCoverView.pauseLoading();
     }
 }

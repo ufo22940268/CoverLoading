@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
@@ -40,9 +41,10 @@ public class CoverView extends ImageView {
     private ValueAnimator mPauseAnimator;
     private float mPauseMaxCircleRadius;
     private ValueAnimator mResumeAnimator;
-    private boolean mStart;
+    private boolean mStart = true;
     private float mInitOuterCircleRadius;
     private ValueAnimator mFinishAnimator;
+    private float mCornerRadius;
 
     public CoverView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -145,6 +147,8 @@ public class CoverView extends ImageView {
         mPauseIconHeight = getResources().getDimension(R.dimen.pause_icon_height);
         mPauseIconWidth = getResources().getDimension(R.dimen.pause_icon_width);
         mPauseIconGap = getResources().getDimension(R.dimen.pause_icon_gap);
+
+        mCornerRadius = getResources().getDimension(R.dimen.cover_corner_radius);
     }
 
     @Override
@@ -190,6 +194,12 @@ public class CoverView extends ImageView {
                 270 - mArcStart,
                 true,
                 shadowPaint);
+        Path path = new Path();
+//        RectF rectF1 = new RectF(0, 0, mCornerRadius*2, mCornerRadius*2);
+//        path.addArc(rectF1, 180, 270);
+//        canvas.clipRect(new RectF(0, 0, 200, 200));
+        path.addRoundRect(new RectF(0, 0, getWidth(), getHeight()), mCornerRadius, mCornerRadius, Path.Direction.CCW);
+        canvas.clipPath(path);
         canvas.drawBitmap(bitmap, 0, 0, null);
 
         /**

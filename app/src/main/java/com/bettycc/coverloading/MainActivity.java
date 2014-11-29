@@ -18,7 +18,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mCoverView = (CoverView) findViewById(R.id.cover);
-        mCoverView.startLoading();
+//        mCoverView.startLoading();
     }
 
 

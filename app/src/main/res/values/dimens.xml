@@ -7,4 +7,5 @@
     <dimen name="pause_icon_height">45dp</dimen>
     <dimen name="pause_icon_width">10dp</dimen>
     <dimen name="pause_icon_gap">10dp</dimen>
+    <dimen name="cover_corner_radius">20dp</dimen>
 </resources>

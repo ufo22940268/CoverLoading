@@ -41,6 +41,8 @@ public class CoverView extends ImageView {
     private float mPauseMaxCircleRadius;
     private ValueAnimator mResumeAnimator;
     private boolean mStart;
+    private float mInitOuterCircleRadius;
+    private ValueAnimator mFinishAnimator;
 
     public CoverView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -49,18 +51,15 @@ public class CoverView extends ImageView {
 
 
     public void startLoading() {
-        mRotateAnimator.start();
-        mPausing = false;
+        if (!mRotateAnimator.isRunning() && !mFinishAnimator.isRunning()) {
+            resetValues();
+            mRotateAnimator.start();
+            mPausing = false;
+        }
     }
 
     private void init(Context context, AttributeSet attrs) {
-        mOuterCircleRadius = getResources().getDimension(R.dimen.outer_circle_radius);
-        mInnerCircleRadius = getResources().getDimension(R.dimen.inner_circle_radius);
-        mPauseMaxCircleRadius = mInnerCircleRadius * 0.7f;
-        mPauseCircleRadius = mPauseMaxCircleRadius;
-        mPauseIconHeight = getResources().getDimension(R.dimen.pause_icon_height);
-        mPauseIconWidth = getResources().getDimension(R.dimen.pause_icon_width);
-        mPauseIconGap = getResources().getDimension(R.dimen.pause_icon_gap);
+        resetValues();
 
         mRotateAnimator = ValueAnimator.ofInt(-90, 270);
         mRotateAnimator.setDuration(10000);
@@ -74,7 +73,8 @@ public class CoverView extends ImageView {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                mStart = false;
+//                mStart = false;
+                mFinishAnimator.start();
             }
 
             @Override
@@ -97,6 +97,54 @@ public class CoverView extends ImageView {
         mResumeAnimator.setDuration(1000);
         mResumeAnimator.addUpdateListener(mResumeUpdateListener);
         mResumeAnimator.addListener(mResumeListener);
+
+        mFinishAnimator = getFinishAnimator();
+    }
+
+    private ValueAnimator getFinishAnimator() {
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(mInitOuterCircleRadius, mInitOuterCircleRadius * 2);
+        valueAnimator.setDuration(1000);
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                mOuterCircleRadius = ((Float) valueAnimator.getAnimatedValue()).floatValue();
+                invalidate();
+            }
+        });
+
+        valueAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                mPausing = false;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                mStart = false;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        return valueAnimator;
+    }
+
+    private void resetValues() {
+        mInitOuterCircleRadius = getResources().getDimension(R.dimen.outer_circle_radius);
+        mOuterCircleRadius = mInitOuterCircleRadius;
+        mInnerCircleRadius = getResources().getDimension(R.dimen.inner_circle_radius);
+        mPauseMaxCircleRadius = mInnerCircleRadius * 0.7f;
+        mPauseCircleRadius = mPauseMaxCircleRadius;
+        mPauseIconHeight = getResources().getDimension(R.dimen.pause_icon_height);
+        mPauseIconWidth = getResources().getDimension(R.dimen.pause_icon_width);
+        mPauseIconGap = getResources().getDimension(R.dimen.pause_icon_gap);
     }
 
     @Override
@@ -203,7 +251,7 @@ public class CoverView extends ImageView {
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public void pauseLoading() {
-        if (!mResumeAnimator.isRunning()) {
+        if (!mResumeAnimator.isRunning() && !mPauseAnimator.isRunning()) {
             mPausing = true;
             mPauseAnimator.start();
             mRotateAnimator.pause();
@@ -213,7 +261,7 @@ public class CoverView extends ImageView {
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public void resumeLoading() {
-        if (!mPauseAnimator.isRunning()) {
+        if (!mPauseAnimator.isRunning() && !mResumeAnimator.isRunning()) {
             mPausing = true;
             mPauseAnimator.cancel();
             mResumeAnimator.start();

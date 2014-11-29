@@ -13,8 +13,8 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 /**
@@ -22,7 +22,7 @@ import android.widget.ImageView;
  */
 public class CoverView extends ImageView {
 
-    public static final int SHADOW_COLOR = 0x77000000;
+    public static final int SHADOW_COLOR = 0xaa000000;
     private int mHeight;
     private int mWidth;
     private Bitmap bitmap;
@@ -49,8 +49,8 @@ public class CoverView extends ImageView {
 
 
     public void startLoading() {
-        mStart = true;
         mRotateAnimator.start();
+        mPausing = false;
     }
 
     private void init(Context context, AttributeSet attrs) {
@@ -66,6 +66,27 @@ public class CoverView extends ImageView {
         mRotateAnimator.setDuration(10000);
         mRotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         mRotateAnimator.addUpdateListener(mRotateListener);
+        mRotateAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                mStart = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                mStart = false;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
 
         mPauseAnimator = ValueAnimator.ofFloat(0.001f, 1);
         mPauseAnimator.setDuration(1000);
@@ -164,21 +185,40 @@ public class CoverView extends ImageView {
         }
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (mStart) {
+                if (mPausing) {
+                    resumeLoading();
+                } else {
+                    pauseLoading();
+                }
+            }
+            return true;
+        }
+
+        return true;
+    }
+
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public void pauseLoading() {
-        mPausing = true;
-        mResumeAnimator.cancel();
-        mPauseAnimator.start();
-        mRotateAnimator.pause();
+        if (!mResumeAnimator.isRunning()) {
+            mPausing = true;
+            mPauseAnimator.start();
+            mRotateAnimator.pause();
+        }
     }
 
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public void resumeLoading() {
-        mPausing = true;
-        mPauseAnimator.cancel();
-        mResumeAnimator.start();
-        mRotateAnimator.resume();
+        if (!mPauseAnimator.isRunning()) {
+            mPausing = true;
+            mPauseAnimator.cancel();
+            mResumeAnimator.start();
+            mRotateAnimator.resume();
+        }
     }
 
     private ValueAnimator.AnimatorUpdateListener mResumeUpdateListener = new ValueAnimator.AnimatorUpdateListener() {

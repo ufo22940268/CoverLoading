@@ -20,16 +20,11 @@
         android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="start"
+        android:text="restart"
         android:onClick="startLoading"
+        android:layout_below="@id/cover"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
         />
 
-    <Switch
-        android:id="@+id/switcher"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textOn="resume"
-        android:textOff="pause"
-        android:layout_toRightOf="@id/start"
-        />
 </RelativeLayout>

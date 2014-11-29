@@ -212,17 +212,17 @@ public class CoverView extends ImageView {
             tempCanvas.drawCircle(cx, cy, mPauseCircleRadius, transparentPaint);
 
             System.out.println("mPauseCircleRadius = " + mPauseCircleRadius);
-            Bitmap pauseBitmap = Bitmap.createBitmap((int) (mPauseCircleRadius * 2), (int) (mPauseCircleRadius * 2), Bitmap.Config.ARGB_8888);
+            Bitmap pauseBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
             Canvas pauseCanvas = new Canvas(pauseBitmap);
 
-            pauseCanvas.drawCircle(mPauseCircleRadius, mPauseCircleRadius, mPauseCircleRadius, shadowPaint);
+            pauseCanvas.drawCircle(cx, cy, mPauseCircleRadius, shadowPaint);
 
             Paint gp1 = new Paint(transparentPaint);
             gp1.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
             //Draw pause1.
-            int pcx = (int) (mPauseCircleRadius - mPauseIconGap / 2 - mPauseIconWidth / 2);
-            int pcy = (int) (mPauseCircleRadius);
+            int pcx = (int) (cx - mPauseIconGap / 2 - mPauseIconWidth / 2);
+            int pcy = (int) (cy);
 
             RectF pause1 = new RectF();
             pause1.left = pcx - mPauseIconWidth / 2;
@@ -232,8 +232,8 @@ public class CoverView extends ImageView {
             pauseCanvas.drawRect(pause1, gp1);
 
             //Draw pause2.
-            int pcx2 = (int) (mPauseCircleRadius + mPauseIconGap / 2 + mPauseIconWidth / 2);
-            int pcy2 = (int) (mPauseCircleRadius);
+            int pcx2 = (int) (cx + mPauseIconGap / 2 + mPauseIconWidth / 2);
+            int pcy2 = (int) (cy);
 
             RectF pause2 = new RectF();
             pause2.left = pcx2 - mPauseIconWidth / 2;
@@ -242,7 +242,7 @@ public class CoverView extends ImageView {
             pause2.bottom = pcy2 + mPauseIconHeight / 2;
             pauseCanvas.drawRect(pause2, gp1);
 
-            canvas.drawBitmap(pauseBitmap, cx - mPauseCircleRadius, cx - mPauseCircleRadius, null);
+            canvas.drawBitmap(pauseBitmap, 0, 0, null);
         }
     }
 

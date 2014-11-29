@@ -11,7 +11,8 @@ Simulate ios installing app animation.
 
 ## TODO
 
-* [x] Pause animation
-* [ ] Compatible with api 8
-* [ ] Fancy finish animation
-* [ ] Upload to maven central
+* [x] Pause animation.
+* [ ] Compatible with api 8.
+* [ ] Fancy finish animation.
+* [ ] Upload to maven central.
+* [ ] Provide customizable options.

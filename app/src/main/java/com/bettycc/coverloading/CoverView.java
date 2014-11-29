@@ -16,6 +16,8 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 /**
@@ -41,7 +43,7 @@ public class CoverView extends ImageView {
     private ValueAnimator mPauseAnimator;
     private float mPauseMaxCircleRadius;
     private ValueAnimator mResumeAnimator;
-    private boolean mStart = true;
+    private boolean mStart = false;
     private float mInitOuterCircleRadius;
     private ValueAnimator mFinishAnimator;
     private float mCornerRadius;
@@ -91,21 +93,25 @@ public class CoverView extends ImageView {
         });
 
         mPauseAnimator = ValueAnimator.ofFloat(0.001f, 1);
-        mPauseAnimator.setDuration(1000);
+        int duration = getResources().getInteger(android.R.integer.config_mediumAnimTime);
+        mPauseAnimator.setDuration(duration);
         mPauseAnimator.addUpdateListener(mPauseUpdateListener);
         mPauseAnimator.addListener(mPauseListener);
+        mPauseAnimator.setInterpolator(new DecelerateInterpolator());
 
         mResumeAnimator = ValueAnimator.ofFloat(1, 0.001f);
-        mResumeAnimator.setDuration(1000);
+        mResumeAnimator.setDuration(duration);
         mResumeAnimator.addUpdateListener(mResumeUpdateListener);
         mResumeAnimator.addListener(mResumeListener);
+        mResumeAnimator.setInterpolator(new AccelerateInterpolator());
 
         mFinishAnimator = getFinishAnimator();
     }
 
     private ValueAnimator getFinishAnimator() {
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(mInitOuterCircleRadius, mInitOuterCircleRadius * 2);
-        valueAnimator.setDuration(1000);
+        valueAnimator.setDuration(getResources().getInteger(android.R.integer.config_mediumAnimTime));
+        valueAnimator.setInterpolator(new AccelerateInterpolator());
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
@@ -195,9 +201,6 @@ public class CoverView extends ImageView {
                 true,
                 shadowPaint);
         Path path = new Path();
-//        RectF rectF1 = new RectF(0, 0, mCornerRadius*2, mCornerRadius*2);
-//        path.addArc(rectF1, 180, 270);
-//        canvas.clipRect(new RectF(0, 0, 200, 200));
         path.addRoundRect(new RectF(0, 0, getWidth(), getHeight()), mCornerRadius, mCornerRadius, Path.Direction.CCW);
         canvas.clipPath(path);
         canvas.drawBitmap(bitmap, 0, 0, null);

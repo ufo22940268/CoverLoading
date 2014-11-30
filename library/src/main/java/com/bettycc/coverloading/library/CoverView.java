@@ -158,7 +158,7 @@ public class CoverView extends ImageView {
         return valueAnimator;
     }
 
-    private void resetValues() {
+    public void resetValues() {
         mInitOuterCircleRadius = getResources().getDimension(R.dimen.outer_circle_radius);
         mOuterCircleRadius = mInitOuterCircleRadius;
         mInnerCircleRadius = getResources().getDimension(R.dimen.inner_circle_radius);
@@ -169,6 +169,8 @@ public class CoverView extends ImageView {
         mPauseIconGap = getResources().getDimension(R.dimen.pause_icon_gap);
 
         mCornerRadius = getResources().getDimension(R.dimen.cover_corner_radius);
+        mProgress = 0;
+        mPendingProgress = 0;
     }
 
     @Override
@@ -276,7 +278,6 @@ public class CoverView extends ImageView {
         return true;
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public void pauseLoading() {
         if (!mResumeAnimator.isRunning() && !mPauseAnimator.isRunning()) {
             mPausing = true;
@@ -285,7 +286,6 @@ public class CoverView extends ImageView {
     }
 
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public void resumeLoading() {
         if (!mPauseAnimator.isRunning() && !mResumeAnimator.isRunning()) {
             mPausing = true;

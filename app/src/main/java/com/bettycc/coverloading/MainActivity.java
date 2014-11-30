@@ -10,9 +10,6 @@ import com.bettycc.coverloading.library.CoverView;
 public class MainActivity extends Activity {
 
     private CoverView mCoverView;
-    private int[] sleepTimes = {
-            1, 2, 4, 2
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +19,7 @@ public class MainActivity extends Activity {
     }
 
 
-    public void startLoading(View view) {
+    public void startLoading(final View view) {
         view.setEnabled(false);
         new Thread(new Runnable() {
             @Override
@@ -43,6 +40,14 @@ public class MainActivity extends Activity {
                         e.printStackTrace();
                     }
                 }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCoverView.resetValues();
+                        view.setEnabled(true);
+                    }
+                });
             }
         }).start();
     }

@@ -67,7 +67,7 @@ public class CoverView extends ImageView {
         if (attrs != null) {
             TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CoverView);
             int color = typedArray.getColor(R.styleable.CoverView_background, DEFAULT_SHADOW_COLOR);
-            mCornerRadius = typedArray.getDimension(R.styleable.CoverView_corner_radius, 0);
+            mCornerRadius = typedArray.getDimension(R.styleable.CoverView_corner_radius, -1);
             typedArray.recycle();
         }
 

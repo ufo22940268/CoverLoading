@@ -11,7 +11,7 @@ How to use
 Include this to gradle
 
 ```gradle
-    compile 'me.biubiubiu.coverloading:library:0.2'
+    compile 'me.biubiubiu.coverloading:library:0.2.1'
 ```
 
 Add view in xml
@@ -33,6 +33,13 @@ Set progress
         mCoverView.setProgress(20);
 ```
 Progress is in 0-100. When you set a progress to CoverView it will perform a animation and move progress. But when in the animation you set another progress, it will save the progress and move again when previous ended.
+
+##Customization
+
+```xml
+    apps:background="#cccccccc" //Change background color of cover.
+```
+
 
 ##Callbacks
 
@@ -59,3 +66,7 @@ Api 8 and above.
 ##Dependencies
 
 - [nineoldandroids](https://github.com/JakeWharton/NineOldAndroids)
+
+##TODO
+
+- [ ] Remove all the fixed dimension.

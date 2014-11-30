@@ -16,7 +16,7 @@
         android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="restart"
+        android:text="start"
         android:onClick="startLoading"
         android:layout_below="@id/cover"
         android:layout_centerHorizontal="true"

@@ -26,6 +26,8 @@ import android.widget.ImageView;
 public class CoverView extends ImageView {
 
     public static final int SHADOW_COLOR = 0xaa000000;
+    public static final int ROTATE_DURATION = 300;
+    private static final int MAX_PROGRESS = 100;
     private int mHeight;
     private int mWidth;
     private Bitmap bitmap;
@@ -47,6 +49,8 @@ public class CoverView extends ImageView {
     private float mInitOuterCircleRadius;
     private ValueAnimator mFinishAnimator;
     private float mCornerRadius;
+    private int mProgress;
+    private int mPendingProgress;
 
     public CoverView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -54,43 +58,8 @@ public class CoverView extends ImageView {
     }
 
 
-    public void startLoading() {
-        if (!mRotateAnimator.isRunning() && !mFinishAnimator.isRunning()) {
-            resetValues();
-            mRotateAnimator.start();
-            mPausing = false;
-        }
-    }
-
     private void init(Context context, AttributeSet attrs) {
         resetValues();
-
-        mRotateAnimator = ValueAnimator.ofInt(-90, 270);
-        mRotateAnimator.setDuration(10000);
-        mRotateAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        mRotateAnimator.addUpdateListener(mRotateListener);
-        mRotateAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-                mStart = true;
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-//                mStart = false;
-                mFinishAnimator.start();
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-
-            }
-        });
 
         mPauseAnimator = ValueAnimator.ofFloat(0.001f, 1);
         int duration = getResources().getInteger(android.R.integer.config_mediumAnimTime);
@@ -106,6 +75,51 @@ public class CoverView extends ImageView {
         mResumeAnimator.setInterpolator(new AccelerateInterpolator());
 
         mFinishAnimator = getFinishAnimator();
+    }
+
+    private ValueAnimator getRotateAnimator(int prevProgress, int progress) {
+        ValueAnimator rotateAnimator = ValueAnimator.ofInt(progressToDegress(prevProgress),
+                progressToDegress(progress));
+        rotateAnimator.setDuration(ROTATE_DURATION);
+        rotateAnimator.addUpdateListener(mRotateListener);
+        rotateAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                mStart = true;
+                mPausing = false;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                handlePendingProgress();
+
+                if (isFinished()) {
+                    mFinishAnimator.start();
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+
+        return rotateAnimator;
+    }
+
+    private void handlePendingProgress() {
+        if (mPendingProgress != mProgress && mPendingProgress > mProgress) {
+            setProgress(mPendingProgress);
+        }
+    }
+
+    private int progressToDegress(float progress) {
+        return (int)(360*(progress /MAX_PROGRESS) - 90);
     }
 
     private ValueAnimator getFinishAnimator() {
@@ -267,7 +281,6 @@ public class CoverView extends ImageView {
         if (!mResumeAnimator.isRunning() && !mPauseAnimator.isRunning()) {
             mPausing = true;
             mPauseAnimator.start();
-            mRotateAnimator.pause();
         }
     }
 
@@ -278,7 +291,7 @@ public class CoverView extends ImageView {
             mPausing = true;
             mPauseAnimator.cancel();
             mResumeAnimator.start();
-            mRotateAnimator.resume();
+            handlePendingProgress();
         }
     }
 
@@ -311,6 +324,7 @@ public class CoverView extends ImageView {
 
         }
     };
+
 
     private ValueAnimator.AnimatorUpdateListener mRotateListener = new ValueAnimator.AnimatorUpdateListener() {
         @Override
@@ -349,4 +363,38 @@ public class CoverView extends ImageView {
 
         }
     };
+
+
+    public void setProgress(int p) {
+        if (p > MAX_PROGRESS) {
+            p = MAX_PROGRESS;
+        }
+
+        if (p < mProgress) {
+            throw new IllegalArgumentException();
+        }
+
+        if ((mRotateAnimator != null && mRotateAnimator.isRunning()) || mPausing) {
+            mPendingProgress = p;
+            return;
+        }
+
+        int prevProgress = mProgress;
+        mProgress = p;
+
+        if (mRotateAnimator != null) {
+            mRotateAnimator.cancel();
+        }
+
+        mRotateAnimator = getRotateAnimator(prevProgress, p);
+        mRotateAnimator.start();
+    }
+
+    public int getProgress() {
+        return mProgress;
+    }
+
+    public boolean isFinished() {
+        return getProgress() == MAX_PROGRESS;
+    }
 }

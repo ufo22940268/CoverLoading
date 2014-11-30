@@ -5,6 +5,10 @@ Simulate ios installing app animation. It will progress when app is installing, 
 
 ![](./slide2.gif)
 
+It will also automatically scale for different image sizes.
+
+![](./device.png)
+
 How to use
 ==========
 
@@ -37,7 +41,8 @@ Progress is in 0-100. When you set a progress to CoverView it will perform a ani
 ##Customization
 
 ```xml
-    apps:background="#cccccccc" //Change background color of cover.
+    app:background="#cccccccc" //Change background color of cover.
+    app:corner_radius="10dp" //Change the radius of corner. If your image is rectangle, then set it to 0dp.
 ```
 
 
@@ -69,4 +74,4 @@ Api 8 and above.
 
 ##TODO
 
-- [ ] Remove all the fixed dimension.
+- [x] Remove all the fixed dimension.

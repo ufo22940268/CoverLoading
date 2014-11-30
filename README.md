@@ -50,11 +50,6 @@ When use pause installing, this callback will be triggered.
 
 Api 8 and above.
  
-## TODO
+##Dependencies
 
-* [x] Pause animation.
-* [x] Compatible with api 8.
-* [x] Fancy finish animation.
-* [x] Upload to maven central.
-* [x] Provide customizable options.
-* [x] Provide a interface to set progress.
+- [nineoldandroids](https://github.com/JakeWharton/NineOldAndroids)

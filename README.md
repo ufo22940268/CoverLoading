@@ -10,7 +10,7 @@ How to use
 
 Include this to gradle
 
-    compile 'me.biubiubiu.coverloading:library:0.1'
+    compile 'me.biubiubiu.coverloading:library:0.2'
 
 Add view in xml
 

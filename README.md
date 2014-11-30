@@ -15,7 +15,7 @@ How to use
 Include this to gradle
 
 ```gradle
-    compile 'me.biubiubiu.coverloading:library:0.2.1'
+    compile 'me.biubiubiu.coverloading:library:0.2.2'
 ```
 
 Add view in xml

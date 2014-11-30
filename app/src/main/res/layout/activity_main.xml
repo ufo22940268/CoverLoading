@@ -1,26 +1,69 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context=".MainActivity">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <com.bettycc.coverloading.library.CoverView
-        android:id="@+id/cover"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:src="@drawable/cover"
-        />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tools="http://schemas.android.com/tools"
+                  android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="start"
-        android:onClick="startLoading"
-        android:layout_below="@id/cover"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        />
+        <com.bettycc.coverloading.library.CoverView
+            android:id="@+id/cover_small"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/cover"
+            />
 
-</RelativeLayout>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:onClick="startSmall"
+            android:text="start"
+            />
+
+        <com.bettycc.coverloading.library.CoverView
+            android:id="@+id/cover_big"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/cover2"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:text="start"
+            android:onClick="startBig"
+            />
+
+        <com.bettycc.coverloading.library.CoverView
+            android:id="@+id/cover_square"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@drawable/cover_square"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            app:corner_radius="0dp"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:onClick="startSquare"
+            android:text="start"
+            />
+
+    </LinearLayout>
+</ScrollView>

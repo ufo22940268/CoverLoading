@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="CoverView">
         <attr name="background" format="color"/>
+        <attr name="corner_radius" format="dimension"/>
     </declare-styleable>
 </resources>

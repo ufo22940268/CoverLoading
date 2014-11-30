@@ -10,15 +10,18 @@ import com.bettycc.coverloading.library.CoverView;
 
 public class MainActivity extends Activity {
 
-    private CoverView mCoverView;
+    private CoverView[] mCoverView = new CoverView[3];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mCoverView = (CoverView) findViewById(R.id.cover);
 
-        mCoverView.setOnPauseResumeListener(new CoverView.OnPauseResumeListener() {
+        mCoverView[0] = (CoverView) findViewById(R.id.cover_small);
+        mCoverView[1] = (CoverView) findViewById(R.id.cover_big);
+        mCoverView[2] = (CoverView) findViewById(R.id.cover_square);
+
+        mCoverView[0].setOnPauseResumeListener(new CoverView.OnPauseResumeListener() {
             @Override
             public void onPause() {
                 Toast.makeText(MainActivity.this, "paused", Toast.LENGTH_SHORT).show();
@@ -32,19 +35,19 @@ public class MainActivity extends Activity {
     }
 
 
-    public void startLoading(final View view) {
+    public void startLoading(final View view, final CoverView coverView) {
         view.setEnabled(false);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 int p = 0;
-                while (!mCoverView.isFinished()) {
+                while (!coverView.isFinished()) {
                     p = (int) (p + Math.random() * 20);
                     final int finalP = p;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            mCoverView.setProgress(finalP);
+                            coverView.setProgress(finalP);
                         }
                     });
                     try {
@@ -57,11 +60,23 @@ public class MainActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mCoverView.resetValues();
+                        coverView.resetValues();
                         view.setEnabled(true);
                     }
                 });
             }
         }).start();
+    }
+
+    public void startSmall(View view) {
+        startLoading(view, mCoverView[0]);
+    }
+
+    public void startBig(View view) {
+        startLoading(view, mCoverView[1]);
+    }
+
+    public void startSquare(View view) {
+        startLoading(view, mCoverView[2]);
     }
 }

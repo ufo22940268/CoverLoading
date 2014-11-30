@@ -33,9 +33,11 @@ public class CoverView extends ImageView {
     private Bitmap bitmap;
     private Canvas tempCanvas;
     private Paint transparentPaint;
-    private float mOuterCircleRadius;
-    private float mInnerCircleRadius;
-    private float mPauseCircleRadius;
+    private float mOuterCircleRadius = -1;
+    private float mInnerCircleRadius = -1;
+    private float mPauseCircleRadius = -1;
+    private float mPauseMaxCircleRadius = -1;
+    private float mCornerRadius = -1;
     private int mArcStart;
     private ValueAnimator mRotateAnimator;
     private float mPauseIconHeight;
@@ -43,12 +45,9 @@ public class CoverView extends ImageView {
     private float mPauseIconGap;
     private boolean mPausing;
     private ValueAnimator mPauseAnimator;
-    private float mPauseMaxCircleRadius;
     private ValueAnimator mResumeAnimator;
     private boolean mStart = false;
     private float mInitOuterCircleRadius;
-    private ValueAnimator mFinishAnimator;
-    private float mCornerRadius;
     private int mProgress;
     private int mPendingProgress;
     private OnPauseResumeListener mOnPauseResumeListener;
@@ -68,6 +67,7 @@ public class CoverView extends ImageView {
         if (attrs != null) {
             TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CoverView);
             int color = typedArray.getColor(R.styleable.CoverView_background, DEFAULT_SHADOW_COLOR);
+            mCornerRadius = typedArray.getDimension(R.styleable.CoverView_corner_radius, 0);
             typedArray.recycle();
         }
 
@@ -86,7 +86,6 @@ public class CoverView extends ImageView {
         mResumeAnimator.addListener(mResumeListener);
         mResumeAnimator.setInterpolator(new AccelerateInterpolator());
 
-        mFinishAnimator = getFinishAnimator();
     }
 
     private ValueAnimator getRotateAnimator(int prevProgress, int progress) {
@@ -106,7 +105,7 @@ public class CoverView extends ImageView {
                 handlePendingProgress();
 
                 if (isFinished()) {
-                    mFinishAnimator.start();
+                    getFinishAnimator().start();
                 }
             }
 
@@ -131,7 +130,7 @@ public class CoverView extends ImageView {
     }
 
     private int progressToDegress(float progress) {
-        return (int)(360*(progress /MAX_PROGRESS) - 90);
+        return (int) (360 * (progress / MAX_PROGRESS) - 90);
     }
 
     private ValueAnimator getFinishAnimator() {
@@ -171,23 +170,48 @@ public class CoverView extends ImageView {
     }
 
     public void resetValues() {
-        mInitOuterCircleRadius = getResources().getDimension(R.dimen.outer_circle_radius);
-        mOuterCircleRadius = mInitOuterCircleRadius;
-        mInnerCircleRadius = getResources().getDimension(R.dimen.inner_circle_radius);
-        mPauseMaxCircleRadius = mInnerCircleRadius * 0.7f;
-        mPauseCircleRadius = mPauseMaxCircleRadius;
-        mPauseIconHeight = getResources().getDimension(R.dimen.pause_icon_height);
-        mPauseIconWidth = getResources().getDimension(R.dimen.pause_icon_width);
-        mPauseIconGap = getResources().getDimension(R.dimen.pause_icon_gap);
-
-        mCornerRadius = getResources().getDimension(R.dimen.cover_corner_radius);
         mProgress = 0;
         mPendingProgress = 0;
+
+        mOuterCircleRadius = -1;
+        mInnerCircleRadius = -1;
+        mPauseCircleRadius = -1;
+        mPauseMaxCircleRadius = -1;
+    }
+
+    private void initSizes(int width, int height) {
+        mPauseIconHeight = 45f / 200 * width;
+        mPauseIconWidth = 10f / 200 * width;
+        mPauseIconGap = 10f / 200 * width;
+
+        mInitOuterCircleRadius = 90f / 200 * width;
+
+        if (mInnerCircleRadius == -1) {
+            mInnerCircleRadius = 80f / 200 * width;
+        }
+
+        if (mCornerRadius == -1) {
+            mCornerRadius = 20f / 200 * width;
+        }
+
+        if (mPauseMaxCircleRadius == -1) {
+            mPauseMaxCircleRadius = mInnerCircleRadius * 0.7f;
+        }
+
+        if (mOuterCircleRadius == -1) {
+            mOuterCircleRadius = mInitOuterCircleRadius;
+        }
+
+        if (mPauseCircleRadius == -1) {
+            mPauseCircleRadius = mPauseMaxCircleRadius;
+        }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+        initSizes(getWidth(), getHeight());
 
         if (!mStart) {
             return;
@@ -228,18 +252,19 @@ public class CoverView extends ImageView {
                 270 - mArcStart,
                 true,
                 shadowPaint);
-        Path path = new Path();
-        path.addRoundRect(new RectF(0, 0, getWidth(), getHeight()), mCornerRadius, mCornerRadius, Path.Direction.CCW);
-        canvas.clipPath(path);
+        if (mCornerRadius != 0) {
+            Path path = new Path();
+            path.addRoundRect(new RectF(0, 0, getWidth(), getHeight()), mCornerRadius, mCornerRadius, Path.Direction.CCW);
+            canvas.clipPath(path);
+        }
         canvas.drawBitmap(bitmap, 0, 0, null);
 
         /**
          * Draw pause icon.
          */
-        if (mPausing && mPauseCircleRadius*2 > 1) {
+        if (mPausing && mPauseCircleRadius * 2 > 1) {
             tempCanvas.drawCircle(cx, cy, mPauseCircleRadius, transparentPaint);
 
-            System.out.println("mPauseCircleRadius = " + mPauseCircleRadius);
             Bitmap pauseBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
             Canvas pauseCanvas = new Canvas(pauseBitmap);
 
@@ -349,7 +374,9 @@ public class CoverView extends ImageView {
     private ValueAnimator.AnimatorUpdateListener mPauseUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
-            mPauseCircleRadius = mPauseMaxCircleRadius * ((Float) animation.getAnimatedValue()).floatValue();
+            float v = ((Float) animation.getAnimatedValue()).floatValue();
+            System.out.println("v = " + v);
+            mPauseCircleRadius = mPauseMaxCircleRadius * v;
             invalidate();
         }
     };
@@ -420,6 +447,7 @@ public class CoverView extends ImageView {
 
     public interface OnPauseResumeListener {
         public void onPause();
+
         public void onResume();
     }
 }

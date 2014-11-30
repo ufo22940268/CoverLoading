@@ -23,15 +23,17 @@ Add view in xml
         />
 
 
-Start loading in activity
+Set progress
 
         mCoverView = (CoverView) findViewById(R.id.cover);
-        mCoverView.startLoading();
+        mCoverView.setProgress(20);
+
+Progress is in 0-100. When you set a progress to CoverView it will perform a animation and move progress. But when in the animation you set another progress, it will save the progress and move again when previous ended.
 
 ##Compatibility
 
 Api 8 and above.
-
+ 
 ## TODO
 
 * [x] Pause animation.
@@ -39,4 +41,4 @@ Api 8 and above.
 * [x] Fancy finish animation.
 * [x] Upload to maven central.
 * [x] Provide customizable options.
-* [ ] Provide a interface to set progress.
+* [x] Provide a interface to set progress.

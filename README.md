@@ -66,3 +66,7 @@ Api 8 and above.
 ##Dependencies
 
 - [nineoldandroids](https://github.com/JakeWharton/NineOldAndroids)
+
+##TODO
+
+- [ ] Remove all the fixed dimension.

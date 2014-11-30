@@ -30,6 +30,22 @@ Set progress
 
 Progress is in 0-100. When you set a progress to CoverView it will perform a animation and move progress. But when in the animation you set another progress, it will save the progress and move again when previous ended.
 
+##Callbacks
+
+When use pause installing, this callback will be triggered.
+
+        mCoverView.setOnPauseResumeListener(new CoverView.OnPauseResumeListener() {
+            @Override
+            public void onPause() {
+                Toast.makeText(MainActivity.this, "paused", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResume() {
+                Toast.makeText(MainActivity.this, "resumed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 ##Compatibility
 
 Api 8 and above.

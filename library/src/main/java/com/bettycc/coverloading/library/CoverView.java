@@ -1,9 +1,7 @@
 package com.bettycc.coverloading.library;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
-import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,20 +10,22 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.ValueAnimator;
 
 /**
  * Created by ccheng on 11/27/14.
  */
 public class CoverView extends ImageView {
 
-    public static final int SHADOW_COLOR = 0xaa000000;
+    public static final int DEFAULT_SHADOW_COLOR = 0xaa000000;
+    public int SHADOW_COLOR = DEFAULT_SHADOW_COLOR;
     public static final int ROTATE_DURATION = 300;
     private static final int MAX_PROGRESS = 100;
     private int mHeight;
@@ -51,6 +51,12 @@ public class CoverView extends ImageView {
     private float mCornerRadius;
     private int mProgress;
     private int mPendingProgress;
+    private OnPauseResumeListener mOnPauseResumeListener;
+
+    public CoverView(Context context) {
+        super(context);
+        init(context, null);
+    }
 
     public CoverView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -59,6 +65,12 @@ public class CoverView extends ImageView {
 
 
     private void init(Context context, AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CoverView);
+            int color = typedArray.getColor(R.styleable.CoverView_background, DEFAULT_SHADOW_COLOR);
+            typedArray.recycle();
+        }
+
         resetValues();
 
         mPauseAnimator = ValueAnimator.ofFloat(0.001f, 1);
@@ -396,5 +408,18 @@ public class CoverView extends ImageView {
 
     public boolean isFinished() {
         return getProgress() == MAX_PROGRESS;
+    }
+
+    public OnPauseResumeListener getOnPauseResumeListener() {
+        return mOnPauseResumeListener;
+    }
+
+    public void setOnPauseResumeListener(OnPauseResumeListener onPauseResumeListener) {
+        mOnPauseResumeListener = onPauseResumeListener;
+    }
+
+    public interface OnPauseResumeListener {
+        public void onPause();
+        public void onResume();
     }
 }
